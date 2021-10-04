@@ -1,11 +1,19 @@
 package example.domain.game;
 
 import com.artemis.World;
-import example.domain.game.ecs.components.*;
+import example.domain.game.ecs.components.Position;
+import example.domain.game.ecs.components.Reward;
+import example.domain.game.ecs.components.Road;
+import example.domain.game.ecs.components.Wall;
 import example.domain.game.ecs.components.events.NewPositionTarget;
 import example.domain.game.ecs.util.EntityBuilder;
 
 import java.util.List;
+
+
+/**
+ * Класс создает игровое поле (стены и дороги) из конфигурации
+ */
 
 public class FieldEntityCreator {
     public static final String ROAD = "0";
@@ -19,7 +27,7 @@ public class FieldEntityCreator {
         entityBuilder = new EntityBuilder(world);
     }
 
-    public void build(List<String[]> cfg, List<int[]> spawnPositions){
+    public void build(List<String[]> cfg){
         createFieldItems(cfg);
     }
 
@@ -36,11 +44,6 @@ public class FieldEntityCreator {
     private int createFrom(String itemTypeValue, int line, int position){
         int fieldItemId = createSimpleItem(itemTypeValue, line, position);
         return fieldItemId;
-    }
-
-    private void setPlayerSpawn(int fieldItemId){
-        if (world.getMapper(Wall.class).has(fieldItemId)) throw new IllegalArgumentException("Нелься ставить точку спауна в стене!");
-        world.getMapper(PlayerSpawn.class).create(fieldItemId);
     }
 
     private int createSimpleItem(String type, int line, int position){

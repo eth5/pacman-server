@@ -3,15 +3,18 @@ package example.domain.game.ecs;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.WorldConfigurationBuilder;
-import example.domain.game.ecs.components.events.SpawnEvent;
 import example.domain.game.ecs.systems.*;
 import example.domain.game.ecs.systems.collision.CollisionDetectSystem;
 import example.domain.game.ecs.systems.collision.CollisionHandlerSystem;
-import example.domain.game.ecs.systems.move.NewPositionSystem;
 import example.domain.game.ecs.systems.move.MoveToWayHandleSystem;
+import example.domain.game.ecs.systems.move.NewPositionSystem;
 import example.domain.game.ecs.systems.state.SendStateSystem;
 import example.domain.game.ecs.systems.state.UpdateStateSystem;
 import example.interfaces.Action;
+
+/**
+ * Класс для создания конфигурации ecs мира с дефолтными системами и возможностью внедрения зависимостей
+ */
 
 public class EcsWorldBuilder {
     private final WorldConfiguration worldConfiguration;

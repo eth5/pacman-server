@@ -26,7 +26,6 @@ public class Server {
             final Action.Arg1<ChannelHandlerContext> onConnect,
             final Action.Arg1<ChannelHandlerContext> onDisconnect) throws Exception {
 
-
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 

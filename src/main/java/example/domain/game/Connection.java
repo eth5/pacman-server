@@ -1,7 +1,6 @@
 package example.domain.game;
 
 import example.log.Log;
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 
 public class Connection {
@@ -13,7 +12,6 @@ public class Connection {
     }
 
     public void write(Object object){
-        // Log.d(this, "write obj "+object+" for " + ctx.channel().remoteAddress());
         if (!ctx.channel().isWritable()) {
             Log.e(this, "ctx not writable!");
             close();
@@ -22,8 +20,7 @@ public class Connection {
 
         try {
 
-            ChannelFuture channelFuture = ctx.writeAndFlush(object);
-            ChannelFuture sync = channelFuture.sync();
+            ctx.writeAndFlush(object).sync();
 
         } catch (Throwable throwable) {
             throwable.printStackTrace();
