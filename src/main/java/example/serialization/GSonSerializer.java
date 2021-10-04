@@ -4,7 +4,7 @@ import com.artemis.Component;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class GSonSerialization implements ISerializator {
+public class GSonSerializer implements ISerializer {
     private final Gson gson = new GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
             .registerTypeAdapter(Component.class, new ClassPathSerializer<Component>("example.domain.game.ecs.components."))

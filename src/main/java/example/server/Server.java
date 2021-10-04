@@ -1,13 +1,13 @@
 package example.server;
 
-import example.server.messages.ClientMessage;
 import example.interfaces.Action;
-import example.serialization.GSonSerialization;
-import example.serialization.ISerializator;
+import example.serialization.GSonSerializer;
+import example.serialization.ISerializer;
 import example.server.decode.MessageDecoder;
 import example.server.endode.CommandEncoder;
 import example.server.endode.InitialGameDataMessageEncoder;
 import example.server.endode.StateEncoder;
+import example.server.messages.ClientMessage;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -21,7 +21,7 @@ public class Server {
     }
 
     public void start(Action.Arg2<ChannelHandlerContext,ClientMessage> onMessageReceived, Action.Arg1<ChannelHandlerContext> onConnect, Action.Arg1<ChannelHandlerContext> onDisconnect) throws Exception {
-        ISerializator serializator = new GSonSerialization();
+        ISerializer serializator = new GSonSerializer();
 
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();

@@ -1,7 +1,6 @@
 package example.server.endode;
 
-import example.log.Log;
-import example.serialization.ISerializator;
+import example.serialization.ISerializer;
 import example.server.messages.InitialGameDataMessage;
 import example.server.messages.MessageType;
 import io.netty.buffer.ByteBuf;
@@ -11,8 +10,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.nio.charset.Charset;
 
 public class InitialGameDataMessageEncoder extends MessageToByteEncoder<InitialGameDataMessage> {
-    private final ISerializator serializator;
-    public InitialGameDataMessageEncoder(ISerializator serializator){
+    private final ISerializer serializator;
+    public InitialGameDataMessageEncoder(ISerializer serializator){
         this.serializator = serializator;
     }
 

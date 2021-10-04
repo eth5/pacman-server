@@ -1,6 +1,6 @@
 package example.server.endode;
 
-import example.serialization.ISerializator;
+import example.serialization.ISerializer;
 import example.server.messages.MessageType;
 import example.server.messages.ServerCommand;
 import io.netty.buffer.ByteBuf;
@@ -10,8 +10,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.nio.charset.Charset;
 
 public class CommandEncoder extends MessageToByteEncoder<ServerCommand> {
-     private final ISerializator serializator;
-    public CommandEncoder(ISerializator serializator){
+     private final ISerializer serializator;
+    public CommandEncoder(ISerializer serializator){
         this.serializator = serializator;
     }
 
