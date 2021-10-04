@@ -34,7 +34,7 @@ public class GameCreator {
             final World world = createWorld(entitiesIdsByPosition, onEndGame);
             Game game = new Game(world, fieldConfig.columns,fieldConfig.rows);
 
-            new FieldEntityCreator(world).build(fieldConfig.itemsData, fieldConfig.spawnPositions);
+            new FieldEntityCreator(world).build(fieldConfig.itemsData);
             createSpawnComponents(world,entitiesIdsByPosition,fieldConfig.spawnPositions);
 
             return new Success<>(game);
