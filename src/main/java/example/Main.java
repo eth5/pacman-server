@@ -2,7 +2,6 @@ package example;
 
 import example.domain.game.Connection;
 import example.log.Log;
-import example.serialization.GSonSerializer;
 import example.server.Server;
 import io.netty.channel.ChannelHandlerContext;
 
@@ -20,14 +19,13 @@ public class Main {
         Map<ChannelHandlerContext, Connection> clients = new HashMap<>();
 
         try {
-            new Server(8080).start(
-                    new GSonSerializer(),
+            new Server(35000).start(
                     (ctx, message) -> {
                         Connection connection = clients.get(ctx);
                         gameWrapper.messageFrom(connection, message);
                     },
                     ctx -> {
-                        Connection connection = new Connection(ctx);
+                        Connection connection = new Connection(ctx.channel());
                         gameWrapper.addConnection(connection);
                         clients.put(ctx, connection);
                     },
