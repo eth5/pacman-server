@@ -10,16 +10,16 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import java.nio.charset.Charset;
 
 public class InitialGameDataMessageEncoder extends MessageToByteEncoder<InitialGameDataMessage> {
-    private final ISerializer serializator;
-    public InitialGameDataMessageEncoder(ISerializer serializator){
-        this.serializator = serializator;
+    private final ISerializer serializer;
+    public InitialGameDataMessageEncoder(ISerializer serializer){
+        this.serializer = serializer;
     }
 
     @Override
     protected void encode(ChannelHandlerContext ctx, InitialGameDataMessage msg, ByteBuf out) throws Exception {
         if (msg == null) throw new NullPointerException("сообщение не может быть null!!!");
 
-        String jsonString = serializator.toJson(msg);
+        String jsonString = serializer.toJson(msg);
         out.writeInt(jsonString.length()).writeInt(MessageType.INITIAL_GAME_DATA);
         out.writeCharSequence(jsonString, Charset.defaultCharset());
     }
