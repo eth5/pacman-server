@@ -4,14 +4,14 @@ import com.google.gson.annotations.Expose;
 
 public class InitialGameDataMessage {
     @Expose
-    public int width;
+    public int rows;
     @Expose
-    public int height;
+    public int columns;
     @Expose
     public int remotePlayerId;
-    public InitialGameDataMessage(int width, int height, int remotePlayerId){
-        this.width = width;
-        this.height = height;
+    public InitialGameDataMessage(int rows, int columns, int remotePlayerId){
+        this.rows = rows;
+        this.columns = columns;
         this.remotePlayerId = remotePlayerId;
     }
 }

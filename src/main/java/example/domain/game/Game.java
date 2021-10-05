@@ -1,6 +1,8 @@
 package example.domain.game;
 
+import com.artemis.Aspect;
 import com.artemis.World;
+import com.artemis.utils.IntBag;
 import example.domain.game.ecs.components.Client;
 import example.domain.game.ecs.components.Position;
 import example.domain.game.ecs.components.events.ClientPressKeysEvent;
@@ -8,86 +10,26 @@ import example.domain.game.ecs.components.events.DeleteEvent;
 import example.domain.game.ecs.components.events.Initial;
 import example.domain.game.ecs.components.events.StateChangedEvent;
 import example.domain.game.ecs.util.EntityBuilder;
-import example.domain.game.ecs.util.FullState;
 import example.log.Log;
 import example.server.messages.ClientMessage;
-import example.server.messages.InitialGameDataMessage;
-import example.server.messages.State;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Game{
-    final World world;
-    final EntityBuilder entityBuilder;
-    final FullState fullState;
-    final int worldFieldWidth, worldFieldHeight;
+    private boolean isSetted = false;
+    private World world;
+    private EntityBuilder entityBuilder;
     private Thread thread;
 
+    public Game(){}
 
-    public Game(World world, int worldFieldWidth, int worldFieldHeight){
-        this.worldFieldWidth = worldFieldWidth;
-        this.worldFieldHeight = worldFieldHeight;
+    public void setWorld(final World world){
+        if (thread!=null && !thread.isInterrupted()){
+            thread.interrupt();
+            while (!thread.isInterrupted()) { Log.i(this, "Wait stop old world");}
+        }
+
         this.world = world;
         this.entityBuilder = new EntityBuilder(world);
-        this.fullState = new FullState(world);
-    }
 
-    private Map<Connection, Integer> connectionToEntityMap = new HashMap<>();
-
-    public void addConnection(Connection connection){
-        Log.i(this, "addConnection " + connection.name);
-
-        final int newPlayerId = world.create();
-        connectionToEntityMap.put(connection, newPlayerId);
-
-        Log.i("Новый клиент id="+newPlayerId);
-        connection.write(new InitialGameDataMessage(worldFieldWidth, worldFieldHeight,newPlayerId));
-
-        State fullState = this.fullState.getFullState();
-        fullState.clientsCount = 1;
-        connection.write(fullState);
-
-        world.getMapper(Initial.class).create(newPlayerId);
-        world.getMapper(Client.class).create(newPlayerId).connection = connection;
-    }
-
-    public void removeConnection(Connection connection){
-        Log.i(this, "removeConnection");
-        Integer playerId = connectionToEntityMap.remove(connection);
-        if (playerId == null) Log.e("playerId = null!!! Illegal State!");
-        else {
-            world.getMapper(DeleteEvent.class).create(playerId);
-            world.getMapper(StateChangedEvent.class).create(playerId);
-        }
-    }
-
-    public Collection<Connection> getConnections(){
-        return connectionToEntityMap.keySet();
-    }
-
-    public void messageFrom(Connection connection, ClientMessage clientMessage){
-
-        int clientEntityId = connectionToEntityMap.get(connection);
-        if (world.getMapper(Initial.class).has(clientEntityId)) return;
-
-        int event = world.create();
-        ClientPressKeysEvent clientPressKeysEvent = world.getMapper(ClientPressKeysEvent.class).create(event);
-        clientPressKeysEvent.entityId = clientEntityId;
-        clientPressKeysEvent.size = clientMessage.size;
-
-        try {
-            System.arraycopy(clientMessage.keys,0,clientPressKeysEvent.keys,0,clientMessage.size);
-        }catch (Throwable t){
-            t.printStackTrace();
-            connection.close();
-        }finally {
-            clientMessage.recycle();
-        }
-
-    }
-    public void start(){
         thread = new Thread(()->{
             try {
                 while (true){
@@ -97,15 +39,72 @@ public class Game{
                 }
             }catch (InterruptedException exception){
                 exception.printStackTrace();
+                Log.i(this,"Ecs World stopped?");
             }finally {
                 world.dispose();
             }
         });
         thread.start();
+
     }
 
+    public int addConnection(Connection connection){
+        Log.i(this, "addConnection " + connection.name);
+
+        final int newClientId = world.create();
+        Log.i("Новый клиент id="+newClientId);
+        world.getMapper(Client.class).create(newClientId).connection = connection;
+        world.getMapper(Initial.class).create(newClientId);
+
+        return newClientId;
+    }
+
+    public void removeClient(int client){
+        Log.i(this, "removePlayer");
+        if (world.getEntityManager().isActive(client)){
+            world.getMapper(Client.class).remove(client);
+            world.getMapper(DeleteEvent.class).create(client);
+            world.getMapper(StateChangedEvent.class).create(client);
+        }else{
+            Log.i(this,"Клиент вне Ecs World");
+        }
+    }
+
+    public void messageFrom(int clientId, ClientMessage clientMessage){
+        //если клиент не инициализирован игнорим
+        if (world.getMapper(Initial.class).has(clientId)) {
+            clientMessage.recycle();
+            return;
+        }
+
+        int event = world.create();
+        ClientPressKeysEvent clientPressKeysEvent = world.getMapper(ClientPressKeysEvent.class).create(event);
+        clientPressKeysEvent.entityId = clientId;
+        clientPressKeysEvent.size = clientMessage.size;
+        try {
+            System.arraycopy(clientMessage.keys,0,clientPressKeysEvent.keys,0,clientMessage.size);
+        }catch (Throwable t){
+
+            t.printStackTrace();
+        }finally {
+            clientMessage.recycle();
+        }
+
+    }
 
     public void dispose() {
         if (thread != null) thread.interrupt();
+    }
+
+    public void removeAllClientsFromEcsWorld(){
+        IntBag entities = world
+                .getAspectSubscriptionManager()
+                .get(Aspect.one(Client.class).exclude(Initial.class))
+                .getEntities();
+        int size = entities.size();
+        int[] data = entities.getData();
+        for (int i = 0; i < size; i++) {
+            world.delete(data[i]);
+        }
     }
 }
