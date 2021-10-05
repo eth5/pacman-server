@@ -12,7 +12,7 @@ public class Connection {
 
     public void write(Object object){
         channel.writeAndFlush(object);
-        }
+    }
 
     public void close(){
         channel.close();
