@@ -4,6 +4,7 @@ import com.artemis.Component;
 import example.domain.game.ecs.components.Client;
 import example.domain.game.ecs.components.PlayerSpawn;
 import example.domain.game.ecs.components.events.ClientPressKeysEvent;
+import example.domain.game.ecs.components.events.NewPositionTarget;
 import example.domain.game.ecs.components.events.StateChangedEvent;
 
 import java.util.HashSet;
@@ -20,5 +21,6 @@ public class ComponentsInfo {
         notSendComponents.add(StateChangedEvent.class);
         notSendComponents.add(ClientPressKeysEvent.class);
         notSendComponents.add(PlayerSpawn.class);
+        notSendComponents.add(NewPositionTarget.class);
     }
 }

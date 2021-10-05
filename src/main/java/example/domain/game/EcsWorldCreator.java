@@ -20,8 +20,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class GameCreator {
-    public Resource<Game> creteFrom(File file, Action onEndGame){
+public class EcsWorldCreator {
+
+    public Resource<World> creteFrom(File file, Action onEndGame){
         try {
 
             //парсим конфиг файл в более удобный формат для дальнейшей работы
@@ -31,17 +32,16 @@ public class GameCreator {
             //будет содержать в себе коллекцию id кажой сущности, для удобного поиска сущностей по координатам
             final IntBag[][] entitiesIdsByPosition = createFieldArray(fieldConfig.columns, fieldConfig.rows);
 
-            final World world = createWorld(entitiesIdsByPosition, onEndGame);
-            Game game = new Game(world, fieldConfig.columns,fieldConfig.rows);
+            final World world = createWorld(fieldConfig.columns,fieldConfig.rows, entitiesIdsByPosition, onEndGame);
 
             new FieldEntityCreator(world).build(fieldConfig.itemsData);
             createSpawnComponents(world,entitiesIdsByPosition,fieldConfig.spawnPositions);
 
-            return new Success<>(game);
+            return new Success<>(world);
 
         } catch (IOException e) {
             e.printStackTrace();
-            return new Error<Game>(e.getMessage());
+            return new Error<World>(e.getMessage());
         }
     }
 
@@ -92,11 +92,13 @@ public class GameCreator {
         return field;
     }
     // создаем ecs world и парсим зависимости в системы
-    private World createWorld(final IntBag[][] entitiesIdsByPosition, Action onEndGame){
+    private World createWorld(final int columns, final int rows, final IntBag[][] entitiesIdsByPosition, Action onEndGame){
         return new EcsWorldBuilder()
                 .dependencyInjection(
                         worldCfgBuilder->{
                             worldCfgBuilder
+                                    .register("columns",columns)
+                                    .register("rows",rows)
                                     .register("entitiesIdsByPosition", entitiesIdsByPosition)
                                     .register("onEndGame", onEndGame);
                         })
